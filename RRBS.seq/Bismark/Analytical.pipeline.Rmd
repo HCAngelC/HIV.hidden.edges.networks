@@ -1,0 +1,12 @@
+{r Import file}
+# import individual files
+f814.pos <- processBismarkAln(location = file.path("","home", "labadmin", "Documents", "Arbeitplatz", "Projekten", "HIV.epigenetic.inheritance", "Illumina.seq", "RRBS.seq", "RRBS1", "RRBS1_bismark_bt2.mapped.sorted.sam"), sample.id = "f814.pos", assembly = "hg38")
+
+f814.neg <- processBismarkAln(location = file.path("","home", "labadmin", "Documents", "Arbeitplatz", "Projekten", "HIV.epigenetic.inheritance", "Illumina.seq", "RRBS.seq", "RRBS2", "RRBS2_bismark_bt2.mapped.sorted.sam"), sample.id = "f814.neg", assembly = "hg38")
+
+# import batch files
+file.path.to.814.pos <- file.path("","home", "labadmin", "Documents", "Arbeitplatz", "Projekten", "HIV.epigenetic.inheritance", "Illumina.seq", "RRBS.seq", "analyse", "RRBS1_bismark_bt2.mapped.sorted.sam")
+file.path.to.814.neg <- file.path("","home", "labadmin", "Documents", "Arbeitplatz", "Projekten", "HIV.epigenetic.inheritance", "Illumina.seq", "RRBS.seq", "analyse", "RRBS2_bismark_bt2.mapped.sorted.sam")
+
+file.path.pool <- list(file.path.to.814.pos, file.path.to.814.neg)
+f814 <- processBismarkAln(location = file.path.pool, sample.id = list("f814.pos", "f814.neg"), treatment = c(0, 1), assembly = "hg38")
