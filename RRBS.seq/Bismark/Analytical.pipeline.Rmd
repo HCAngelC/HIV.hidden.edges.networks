@@ -10,3 +10,23 @@ file.path.to.814.neg <- file.path("","home", "labadmin", "Documents", "Arbeitpla
 
 file.path.pool <- list(file.path.to.814.pos, file.path.to.814.neg)
 f814 <- processBismarkAln(location = file.path.pool, sample.id = list("f814.pos", "f814.neg"), treatment = c(0, 1), assembly = "hg38")
+
+{r Descriptive statistics on samples}
+getCoverageStats(f814[[2]], plot=TRUE,both.strands=FALSE)
+
+{r Filtering samples based on read coverage}
+f814.filter <- filterByCoverage(f814, lo.count=10,lo.perc=NULL, hi.count=NULL,hi.perc=99.9)
+f814.pos.filter <- filterByCoverage(f814.pos, lo.count=10,lo.perc=NULL, hi.count=NULL,hi.perc=99.9)
+f814.neg.filter <- filterByCoverage(f814.neg, lo.count=10,lo.perc=NULL, hi.count=NULL,hi.perc=99.9)
+
+{r Merging samples}
+f814.filter.merge <- methylKit::unite(f814, destrand = F)
+
+{r Sample Correlation}
+f814.filter.merge.corr <- getCorrelation(f814.filter.merge, plot=TRUE)
+
+{r PCA}
+svg("/home/labadmin/Documents/Arbeitplatz/Projekten/HIV.epigenetic.inheritance/Illustracja/PCA/pca.f814.svg", height = 6, width = 6)
+PCASamples(f814.filter.merge)
+dev.off()
+
