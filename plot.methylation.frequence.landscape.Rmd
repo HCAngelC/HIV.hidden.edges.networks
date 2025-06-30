@@ -1,0 +1,68 @@
+#R function
+malen.diff.freq <- function(S4) {
+  
+  df <- data.frame(S4$chr, S4$start, S4$end, S4$meth.diff)
+  names(df) <- c("chr", "start", "end", "meth.diff")
+  
+  freq.chr1 <- dim(dplyr::filter(df, chr == "1"))[1]/249250621
+  freq.chr2 <- dim(dplyr::filter(df, chr == "2"))[1]/243199373
+  freq.chr3 <- dim(dplyr::filter(df, chr == "3"))[1]/198022430
+  freq.chr4 <- dim(dplyr::filter(df, chr == "4"))[1]/191154276
+  freq.chr5 <- dim(dplyr::filter(df, chr == "5"))[1]/180915260
+  freq.chr6 <- dim(dplyr::filter(df, chr == "6"))[1]/171115067
+  freq.chr7 <- dim(dplyr::filter(df, chr == "7"))[1]/159138663
+  freq.chr8 <- dim(dplyr::filter(df, chr == "8"))[1]/146364022
+  freq.chr9 <- dim(dplyr::filter(df, chr == "9"))[1]/141213431
+  freq.chr10 <- dim(dplyr::filter(df, chr == "10"))[1]/135534747
+  freq.chr11 <- dim(dplyr::filter(df, chr == "11"))[1]/135006516
+  freq.chr12 <- dim(dplyr::filter(df, chr == "12"))[1]/133851895
+  freq.chr13 <- dim(dplyr::filter(df, chr == "13"))[1]/115169878
+  freq.chr14 <- dim(dplyr::filter(df, chr == "14"))[1]/107349540
+  freq.chr15 <- dim(dplyr::filter(df, chr == "15"))[1]/102531392
+  freq.chr16 <- dim(dplyr::filter(df, chr == "16"))[1]/90354753
+  freq.chr17 <- dim(dplyr::filter(df, chr == "17"))[1]/81195210
+  freq.chr18 <- dim(dplyr::filter(df, chr == "18"))[1]/78077248
+  freq.chr19 <- dim(dplyr::filter(df, chr == "19"))[1]/59128983
+  freq.chr20 <- dim(dplyr::filter(df, chr == "20"))[1]/63025520
+  freq.chr21 <- dim(dplyr::filter(df, chr == "21"))[1]/48129895
+  freq.chr22 <- dim(dplyr::filter(df, chr == "22"))[1]/51304566
+  freq.chrX <- dim(dplyr::filter(df, chr == "X"))[1]/155270560
+  
+  freq <- c(freq.chr1, freq.chr2, freq.chr3, freq.chr4, freq.chr5, freq.chr6, freq.chr7, freq.chr8, freq.chr9, freq.chr10, freq.chr11, freq.chr12, freq.chr13, freq.chr14, freq.chr15, freq.chr16, freq.chr17, freq.chr18, freq.chr19, freq.chr20, freq.chr21, freq.chr22, freq.chrX)
+  
+  chr <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "ChrX")
+  
+  df.bi <- data.frame(chr, freq)
+  
+  Richtung.chr <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "ChrX")
+  
+  df.bi$chr <- factor(df.bi$chr, levels = Richtung.chr)
+  return(df.bi)
+}
+
+{r Finding differentially methylated bases or regions}
+f814.filter.merge.diff <- calculateDiffMeth(f814.filter.merge)
+
+# get hyper methylated bases
+f814.filter.merge.diff.hyper <- getMethylDiff(f814.filter.merge.diff, difference=25,qvalue=0.01,type="hyper")
+
+df.f814.filter.merge.diff.hyper <- data.frame(f814.filter.merge.diff.hyper$chr, f814.filter.merge.diff.hyper$start, f814.filter.merge.diff.hyper$end, f814.filter.merge.diff.hyper$meth.diff)
+names(df.f814.filter.merge.diff.hyper) <- c("chr", "start", "end", "meth.diff")
+df.f814.filter.merge.diff.hyper$state <- c("hyper")
+
+# get hypo methylated bases
+f814.filter.merge.diff.hypo <- getMethylDiff(f814.filter.merge.diff, difference=25,qvalue=0.01,type="hypo")
+
+df.f814.filter.merge.diff.hypo <- data.frame(f814.filter.merge.diff.hypo$chr, f814.filter.merge.diff.hypo$start, f814.filter.merge.diff.hypo$end, f814.filter.merge.diff.hypo$meth.diff)
+names(df.f814.filter.merge.diff.hypo) <- c("chr", "start", "end", "meth.diff")
+df.f814.filter.merge.diff.hypo$state <- c("hypo")
+
+# get all differentially methylated bases
+f814.filter.merge.diff.komplet <- getMethylDiff(f814.filter.merge.diff, difference=25,qvalue=0.01)
+
+freq.f814.hyper <- malen.diff.freq(df.f814.filter.merge.diff.hyper) %>% dplyr::mutate(state = "hyper")
+freq.f814.hypo <- malen.diff.freq(f814.filter.merge.diff.hyper) %>% dplyr::mutate(state = "hypo")
+
+df.freq.f814.pool <- dplyr::bind_rows(freq.f814.hyper, freq.f814.hypo)
+
+ggplot(df.freq.f814.pool, aes(x = chr, y = freq, fill = state))+geom_bar(stat = "identity", color = "black")+facet_grid(state ~ .)+theme_bw()+xlab("")+ylab("Frequency (event/chr size)")+scale_fill_manual(values = c("yellow", "navy"))+theme(axis.title.x=element_text(size=12), axis.text.x=element_text(size=12, colour = "black",angle=45,vjust=1, hjust = 1), axis.title.y = element_text(size=12),axis.text.y = element_text(size = 12, colour = "black"))
