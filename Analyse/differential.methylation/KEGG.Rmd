@@ -1,0 +1,58 @@
+{r biomaRt ensembl generation}
+library(biomaRt)
+library(tibble)
+
+# convert transcription ID to gene symbol
+ensembl <- useMart("ensembl")
+datasets <- listDatasets(ensembl)
+head(datasets)
+
+ensembl = useDataset("hsapiens_gene_ensembl",mart=ensembl)
+
+# R function
+S4.to.df.diff <- function(S4) {
+  df <- data.frame(chr = S4$chr, start = S4$start, end = S4$end, pvalue = S4$pvalue, qvalue = S4$qvalue, meth.diff = S4$meth.diff)
+  
+  df <- df %>% dplyr::filter(chr == "1" | chr == "2" | chr == "3" | chr == "4" | chr == "5" | chr == "6" | chr == "7" | chr == "8" | chr == "9" | chr == "10" | chr == "11" | chr == "12" | chr == "13" | chr == "14" | chr == "15" | chr == "16" | chr == "17" | chr == "18" | chr == "19" | chr == "20" | chr == "21" | chr == "22" | chr == "X")
+
+Richtung.chr.num <- c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X")
+
+df$chr <- factor(df$chr, levels = Richtung.chr.num)
+  
+  return(df)
+}
+
+{r convert to df}
+df.f814.filter.merge.tiles.diff <- S4.to.df.diff(f814.filter.merge.tiles.diff) %>% dplyr::mutate(sig = case_when(pvalue < 0.01 & qvalue < 0.01 & meth.diff > 25 ~ "up", pvalue < 0.01 & qvalue < 0.01 & meth.diff < -25 ~ "down", pvalue > 0.01 | qvalue > 0.01 ~ "no.sig")) %>% na.omit() %>% dplyr::filter(chr == "1" | chr == "2" | chr == "3" | chr == "4" | chr == "5" | chr == "6" | chr == "7" | chr == "8" | chr == "9" | chr == "10" | chr == "11" | chr == "12" | chr == "13" | chr == "14" | chr == "15" | chr == "16" | chr == "17" | chr == "18" | chr == "19" | chr == "20" | chr == "21" | chr == "22" | chr == "X")
+
+df.f814.filter.merge.tiles.diff$chr <- factor(df.f814.filter.merge.tiles.diff$chr, levels = Richtung.chr.num)
+
+df.f814.filter.merge.tiles.diff.sig <- df.f814.filter.merge.tiles.diff %>% dplyr::filter(sig == "up" | sig == "down")
+
+{perl bedtools intersect differential methylation genes with UCSCRefSeq mRNA}
+$ bedtools intersect -a df.f814.tiles.diff.sig.v.bed -b /home/labadmin/Documents/Open_Source/Genome_index/transcriptomics/UCSC.RefSeq/UCSCRefSeq.humanESTs.mRNA.bed.csv -wa -wb > df.f814.tiles.diff.sig.ann.txt
+
+{r import df in r}
+df.f814.filter.merge.tiles.diff.sig.ann <- read.table("/path_to_file/df.f814.tiles.diff.sig.ann.txt", header = F, stringsAsFactors = F)
+
+names(df.f814.filter.merge.tiles.diff.sig.ann) <- c("chr", "start", "end", "pvalue", "qvalue", "meth.diff", "sig", "chr.2", "txStart", "txEnd", "gene.symbol", "cdsStart", "cdsEnd", "name")
+
+#{r prepare geneList}
+symbol.to.entrezID <- getBM(attributes = c("entrezgene_id", "external_gene_name"), filters = "external_gene_name", values = df.f814.filter.merge.tiles.diff.sig.ann$gene.symbol, mart = ensembl)
+names(symbol.to.entrezID)<-c("EntrezID", "gene.symbol")
+df.f814.filter.merge.tiles.diff.sig.ann.EntrezID <- merge(df.f814.filter.merge.tiles.diff.sig.ann, symbol.to.entrezID, by = "gene.symbol") %>% na.omit()
+
+geneList.meth.diff <- df.f814.filter.merge.tiles.diff.sig.ann.EntrezID[,7]
+names(geneList.meth.diff) <- as.character(df.f814.filter.merge.tiles.diff.sig.ann.EntrezID[,15])
+geneList.meth.diff <- sort(geneList.meth.diff, decreasing = T)
+
+{r KEGG analysis}
+df.f814.filter.merge.tiles.diff.sig.ann$gene.symbol <- as.character(df.f814.filter.merge.tiles.diff.sig.ann$gene.symbol)
+
+f814.sig.up <- df.f814.filter.merge.tiles.diff.sig.ann %>% dplyr::filter(sig == "up")
+f814.sig.up.EntrezID <- bitr(f814.sig.up$gene.symbol, fromType="SYMBOL", toType=c("ENSEMBL", "ENTREZID"), OrgDb= org.Hs.eg.db)
+kegg.f814.up <- enrichKEGG(gene = f814.sig.up.EntrezID$ENTREZID, organism = 'hsa', pvalueCutoff = 0.05)
+
+f814.sig.dw <- df.f814.filter.merge.tiles.diff.sig.ann %>% dplyr::filter(sig == "down")
+f814.sig.dw.EntrezID <- bitr(f814.sig.dw$gene.symbol, fromType="SYMBOL", toType=c("ENSEMBL", "ENTREZID"), OrgDb= org.Hs.eg.db)
+kegg.f814.dw <- enrichKEGG(gene = f814.sig.dw.EntrezID$ENTREZID, organism = 'hsa', pvalueCutoff = 0.05)
