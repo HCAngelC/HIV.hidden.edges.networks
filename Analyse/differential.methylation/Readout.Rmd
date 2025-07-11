@@ -1,0 +1,42 @@
+#Methylation based on bases
+f814.filter.merge.diff <- calculateDiffMeth(f814.filter.merge, mc.cores = 2)
+dm.lr=calculateDiffMeth(f814.filter.merge, overdispersion = "MN", test ="Chisq")
+
+## get hyper methylated bases
+f814.filter.merge.diff.hyper <- getMethylDiff(f814.filter.merge.diff, difference=25,qvalue=0.01,type="hyper")
+
+df.f814.filter.merge.diff.hyper <- data.frame(f814.filter.merge.diff.hyper$chr, f814.filter.merge.diff.hyper$start, f814.filter.merge.diff.hyper$end, f814.filter.merge.diff.hyper$meth.diff)
+names(df.f814.filter.merge.diff.hyper) <- c("chr", "start", "end", "meth.diff")
+df.f814.filter.merge.diff.hyper$state <- c("hyper")
+
+## get hypo methylated bases
+f814.filter.merge.diff.hypo <- getMethylDiff(f814.filter.merge.diff, difference=25,qvalue=0.01,type="hypo")
+
+df.f814.filter.merge.diff.hypo <- data.frame(f814.filter.merge.diff.hypo$chr, f814.filter.merge.diff.hypo$start, f814.filter.merge.diff.hypo$end, f814.filter.merge.diff.hypo$meth.diff)
+names(df.f814.filter.merge.diff.hypo) <- c("chr", "start", "end", "meth.diff")
+df.f814.filter.merge.diff.hypo$state <- c("hypo")
+
+## get all differentially methylated bases
+f814.filter.merge.diff.komplet <- getMethylDiff(f814.filter.merge.diff, difference=25,qvalue=0.01)
+
+#Methylation based on regions
+f814.filter.merge.tiles <- tileMethylCounts(f814.filter.merge, win.size=1000,step.size=1000)
+
+f814.filter.merge.tiles.diff <- calculateDiffMeth(f814.filter.merge.tiles, mc.cores = 2)
+
+## get hyper methylated region
+f814.filter.merge.tiles.diff.hyper <- getMethylDiff(f814.filter.merge.tiles.diff, difference=25,qvalue=0.01,pvalue = 0.05, type="hyper")
+
+df.f814.filter.merge.tiles.diff.hyper <- data.frame(f814.filter.merge.tiles.diff.hyper$chr, f814.filter.merge.tiles.diff.hyper$start, f814.filter.merge.tiles.diff.hyper$end, f814.filter.merge.tiles.diff.hyper$meth.diff)
+names(df.f814.filter.merge.tiles.diff.hyper) <- c("chr", "start", "end", "meth.diff")
+df.f814.filter.merge.tiles.diff.hyper$state <- c("hyper")
+
+## get hypo methylated bases
+f814.filter.merge.tiles.diff.hypo <- getMethylDiff(f814.filter.merge.tiles.diff, difference=25,qvalue=0.01,pvalue = 0.05, type="hypo")
+
+df.f814.filter.merge.tiles.diff.hypo <- data.frame(f814.filter.merge.tiles.diff.hypo$chr, f814.filter.merge.tiles.diff.hypo$start, f814.filter.merge.tiles.diff.hypo$end, f814.filter.merge.tiles.diff.hypo$meth.diff)
+names(df.f814.filter.merge.tiles.diff.hypo) <- c("chr", "start", "end", "meth.diff")
+df.f814.filter.merge.tiles.diff.hypo$state <- c("hypo")
+
+## get all differentially methylated bases
+f814.filter.merge.tiles.diff.komplet <- getMethylDiff(f814.filter.merge.tiles.diff, difference=25,qvalue=0.01, pvalue = 0.05)
