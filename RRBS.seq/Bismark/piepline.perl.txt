@@ -11,7 +11,7 @@ XXX_bt2.bam
 XXX_bt2_SE_report.txt
 
 3. Select the mapped reads
-$ samtools view -b -F XXX_bt2.bam > XXX_bt2.mapped.bam
+$ samtools view -b -F 4 XXX_bt2.bam > XXX_bt2.mapped.bam
 
 4 Convert to sam file
 $ samtools view -h XXX_bt2.mapped.bam > XXX_bt2.mapped.sam
