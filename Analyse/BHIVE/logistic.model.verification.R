@@ -1,4 +1,15 @@
+#!/usr/bin/env Rscript
+rm(list=ls())
+##############################################################
+# Author: Heng-Chang Chen
+# Date: 2025/08/18
+##############################################################
+# Input: df containing B-HIVE HIV integration sites at the coordinates of all features.
+# Object: Calculation of sensitivity, specificity, F1 score and AUC for each model.
+##############################################################
 
+require(pROC)
+require(caret)
 
 logistic.model.confusion <- function(df) {
   # 2. Create training and test samples
