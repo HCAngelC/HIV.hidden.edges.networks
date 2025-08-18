@@ -107,11 +107,11 @@ model.d.confusion.mx <- function(df) {
   df.label <- df %>% dplyr::select(dominant) %>% dplyr::mutate(id = 1:nrow(df))
   
   # model d
-  #df.model.d.variable <- df.methyl %>% dplyr::select(H3K27ac, H3K36me3, H3K4me1, H3K4me3, H3K79me3, H3K9me3, methyl.percent)
-  #df.model.d.variable <- as.data.frame(scale(df.model.d.variable)) # Scale df
-  #df.model.d.variable <- df.model.d.variable %>% dplyr::mutate(id = 1:nrow(df.methyl))
-  #df.model.d <- cbind(df.label.methyl, df.model.d.variable, by = "id")
-  #df.model.d$id <- NULL
-  #df.model.d <- df.model.d %>% dplyr::filter(dominant != "DMSO")
-  #df.model.d.output <- logistic.model.confusion(df.model.d) %>% dplyr::mutate(model = "d")
+  df.model.d.variable <- df %>% dplyr::select(H3K27ac, H3K36me3, H3K4me1, H3K4me3, H3K79me3, H3K9me3, methyl.percent)
+  df.model.d.variable <- as.data.frame(scale(df.model.d.variable)) # Scale df
+  df.model.d.variable <- df.model.d.variable %>% dplyr::mutate(id = 1:nrow(df))
+  df.model.d <- cbind(df.label, df.model.d.variable, by = "id")
+  df.model.d$id <- NULL
+  df.model.d <- df.model.d %>% dplyr::filter(dominant != "DMSO")
+  df.model.d.output <- logistic.model.confusion(df.model.d) %>% dplyr::mutate(model = "d")
 }
