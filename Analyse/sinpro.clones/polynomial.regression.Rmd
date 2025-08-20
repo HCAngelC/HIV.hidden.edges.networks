@@ -47,24 +47,16 @@ decompose.df.list <- function(df.list) {
 
 plot.polynomial.regression <- function(df) {
 
-  x = df[,3]
+   x = df[,3]
   y = df[,2]
   
   fit1 <- lm(y~x, data = df)
   fit2 <- lm(y~poly(x, 2, raw = T), data = df)
   fit3 <- lm(y~poly(x, 3, raw = T), data = df)
   fit4 <- lm(y~poly(x, 4, raw = T), data = df)
-  fit5 <- lm(y~poly(x, 5, raw = T), data = df) 
-  fit5 <- lm(y~poly(x, 5, raw = T), data = df)
+  #fit5 <- lm(y~poly(x, 5, raw = T), data = df)
   
-  x_axis <- seq(1, max(df[,3]), length = max(df[,3] + 1000))
-  
-  plot(df[,3], df[,2], pch = 1, xlab = "histone", ylab = "Number of hidden edges")
-  lines(x_axis, predict(fit1, data.frame(x = x_axis)), col = "red")
-  lines(x_axis, predict(fit2, data.frame(x = x_axis)), col = "orange")
-  lines(x_axis, predict(fit3, data.frame(x = x_axis)), col = "blue")
-  lines(x_axis, predict(fit4, data.frame(x = x_axis)), col = "purple")
-  lines(x_axis, predict(fit5, data.frame(x = x_axis)), col = "green3")
+  ggplot(df, aes(x = x, y = y))+geom_point()+theme_bw()+geom_line(aes(x = x, y = predict(fit1, list(x = x))), data = df, color = "red")+geom_line(aes(x = x, y = predict(fit2, list(x = x))), data = df, color = "orange")+geom_line(aes(x = x, y = predict(fit3, list(x = x))), data = df, color = "blue")+geom_line(aes(x = x, y = predict(fit4, list(x = x))), data = df, color = "purple")+xlab("Histone")+ylab("Number of hidden edges")+ylim(0, 21)+theme(axis.title.x=element_text(size=10), axis.text.x=element_text(size=10, colour = "black",angle = 45,vjust = 1, hjust = 1), axis.title.y = element_text(size=10),axis.text.y = element_text(size = 10, colour = "black"))
 }
 
 # Execution
