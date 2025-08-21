@@ -47,7 +47,7 @@ dev.off()
 #simulated data
 expr <- generate_expression(100, igraph, cor = 0.8, mean = 0,
           comm = FALSE, dist = FALSE, absolute = FALSE, state = state)
-svg("/path_to_file/expr.simulated.correlation.svg", height = 6, width = 6)
+svg("/path_to_file/expr.simulated.expression.svg", height = 6, width = 6)
 
 #plot simulated correlations
 heatmap.2(cor(t(expr)), scale = "none", trace = "none",
