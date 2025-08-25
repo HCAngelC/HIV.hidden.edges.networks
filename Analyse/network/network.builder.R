@@ -27,7 +27,9 @@ network.builder <- function(df) {
   df.tpm.mx <- cor_test(df.tpm.t.nu)
   
   df.tpm.mx.out.p_sel <- df.tpm.mx %>% dplyr::filter(p < 0.05 | p == 0.05) %>% dplyr::select(var1, var2, cor)
-  
+
+  df.tpm.mx.out.p_sel <- df.tpm.mx.out.p_sel %>% dplyr::filter(var1 != var2) #remove self contact
+          
   df.tpm.mx.out.p_sel$var1 <- as.integer(df.tpm.mx.out.p_sel$var1)
   df.tpm.mx.out.p_sel$var2 <- as.integer(df.tpm.mx.out.p_sel$var2)
   df.tpm.mx.out.p_sel$cor <- as.integer(df.tpm.mx.out.p_sel$cor)
