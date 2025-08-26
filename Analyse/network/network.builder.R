@@ -14,9 +14,10 @@ rm(list=ls())
 require("rxtatix")
 require("igraph")
 
+
 network.builder <- function(df) {
   df$id <- c(1:nrow(df))
-  node <- df %>% dplyr::select(id, latent)
+  node <- df %>% dplyr::select(id, dominant)
   
   df.tpm <- df[,c(26, 22:24, 27)]
   df.tpm$id <- as.character(df.tpm$id)
@@ -26,9 +27,9 @@ network.builder <- function(df) {
   df.tpm.t.nu <- as.data.frame(sapply(df.tpm.t, as.numeric))
   df.tpm.mx <- cor_test(df.tpm.t.nu)
   
-  df.tpm.mx.out.p_sel <- df.tpm.mx %>% dplyr::filter(p < 0.05 | p == 0.05) %>% dplyr::select(var1, var2, cor)
+  df.tpm.mx.out.p_sel <- df.tpm.mx %>% dplyr::filter(p < 0.05 | p == 0.05) %>% dplyr::select(var1, var2, cor) %>% dplyr::filter(cor > 0)
 
-  df.tpm.mx.out.p_sel <- df.tpm.mx.out.p_sel %>% dplyr::filter(var1 != var2) #remove self contact
+  df.tpm.mx.out.p_sel <- df.tpm.mx.out.p_sel %>% dplyr::filter(var1 != var2) #remove edges originated from self nodes.
           
   df.tpm.mx.out.p_sel$var1 <- as.integer(df.tpm.mx.out.p_sel$var1)
   df.tpm.mx.out.p_sel$var2 <- as.integer(df.tpm.mx.out.p_sel$var2)
