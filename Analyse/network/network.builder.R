@@ -14,7 +14,36 @@ rm(list=ls())
 require("rxtatix")
 require("igraph")
 
-
+#' @title network.builder
+#'
+#' @param df A dataframe containing B-HIVE HIV integration sites at the coordinates of all features.
+#' Assign series ID number to the df.
+#' Generate the edge list containing two columns (ID and dominant).
+#' 
+#' Select required features used to construct the network.
+#' Convert series ID number as character.
+#' Swap the columns and the rows in the dataframe.
+#' Use the firs first row (series ID number) as the column name in the matrix.
+#' Convert the matrix to the datafame, excluding the first row (series ID number).
+#' Convert the entire dataframe to be numeric.
+#' Compute Pearson correlation coefficient between 2 adjacent vertices.
+#' 
+#' Select the significant correlation coefficients (the p value equal or smaller than 0.05) with the value greater than 0.
+#' 
+#' Remove self-connected edges.
+#' 
+#' Convert var1 as integer.
+#' Convert var2 as integer.
+#' Convert correlation coefficients as integer.
+#' 
+#' #igraph
+#' Create graph (d, A data frame containing a symbolic edge list in the first two columns; vertices, A data frame with vertex metadata, or NULL.)
+#' 
+#' #assign colors for types.
+#' Assign color codes.
+#' Assign color codes to the attribute "dominant".
+#' 
+#' Plot the graph
 network.builder <- function(df) {
   df$id <- c(1:nrow(df))
   node <- df %>% dplyr::select(id, dominant)
@@ -40,7 +69,7 @@ df.igraph <- graph_from_data_frame(d = df.tpm.mx.out.p_sel, vertices = node, dir
 
 #assign colors for types
 Farbe <- c("green3", "grey75")
-Farbe.net <- Farbe[as.numeric(as.factor(V(df.igraph)$latent))]
+Farbe.net <- Farbe[as.numeric(as.factor(V(df.igraph)$dominant))]
 
 plot(df.igraph, vertex.size = 7, vertex.label = NA,  edge.arrow.size = 0, vertex.color = Farbe.net)
 }
